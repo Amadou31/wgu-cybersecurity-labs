@@ -1,19 +1,40 @@
-# WGU Cybersecurity Labs - Independent Recreations
-**Disclaimer:** All labs here are independent recreations built from scratch in my personal AWS free-tier account for learning. No WGU, CompTIA, or verbatim questions are included. 
+# D484 - Cloud Security Audit Lab
+(Independent Recreation)
 
-This repo documents security concepts I am learning at WGU in my own words, with my own code. 
+> Independent recreation in my personal AWS free-tier account. Not WGU material. Built to practice concepts.f
 
-## Labs
-### 1. [D484] Cloud security Audit - IAM & S3
-**Concepts:** Least Privilege, S3 Public Access, Cloud Auditing
-**Tools:** ScoutSuite, AWS CLI, Terraform
-**My Setup:** I built my own IAM role and 3 test S3 buckets to practice detection.
+## Objective
+Practice cloud auditing: identifying over-permissive S3 policies and applying least privilege. 
 
-## How I Stay Compliant
-- I Never upload school platform screenshots
-- I never copy exact bucket names, role names, or question text
-- I recreate the *concept* in my own AWS account
-- I document what *I learned*, not what the answer was
+## My Lab Setup (My own Account)
+- Created 3 S3 buckets:
+  - my-test-bucket-secure-2026 - Block all public access ON, private ACL
+  - my-test-bucket-policy-issue-2026 - Added public-read ACL to test detection
+  - my-test-bucket-policy-issue-2026 - Added wildcard Principal to test detection
+  - Created custom IAM tole
+    SecurityAuditorRole with read-only access
 
-## Skills Demonstrated
-AWS IAM, S3 Security, ScoutSuite, Terraform, Incident Response, Principle of Least Privilege 
+## Tools Used
+- ScoutSuite - open-source cloud audit tool
+- AWS CLI - get-bucket-acl and get-bucket-policy
+- Prowler for CIS checks
+
+## What I Found
+1. ACL Check: 1 bucket with public-read ACL - high risk
+2. Policy Check: 1 bucket allowed Principal* - violates least privilege
+3. Logging: No bucket has server access logging enabled
+
+## How I Fixed It
+aws s3api put-bucket-acl --bucket my-test-bucket-acl-issue-2026 
+--acl private aws s3api put-public-access-block --bucket my-test-bucket
+-acl-issue-2026 --public-access-block-configuration
+BlockPublicAcls=true,IgnorrPublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true
+Replaced wildcard policy with specific IAM role ARN.
+
+## Key Takeaways
+- Block S3 public access by default
+- Avoid Principal * - use specific ARNs
+- ScoutSuite great for quick audits
+
+## Skills Learned
+AWS S3 security, IAM Least Privilege, ScoutSuite, CLoud Auditing
